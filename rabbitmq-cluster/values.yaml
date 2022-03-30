@@ -13,8 +13,8 @@ terminationGracePeriodSeconds: 120
 service:
   type:
   annotations:
-    # hello: world
-    # hello2: world
+    # key: value
+    # key2: value2
 
 persistence:
   storageClass: standard
