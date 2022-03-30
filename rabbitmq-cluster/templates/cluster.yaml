@@ -1,0 +1,44 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: {{ default .Chart.Name .Values.nameoverride }}
+spec:
+  {{- include "rabbitmq.image" . | nindent 2 }}
+  {{- if .Values.imagePullSecrets }}
+  imagePullSecrets:
+  {{ range .Values.imagePullSecrets -}}
+    - name: {{ . }}
+  {{ end -}}
+  {{- end }}
+  replicas: {{ required "Number of replicas is required" .Values.replicas }}
+  override:
+    statefulSet:
+      spec:
+        podManagementPolicy: OrderedReady
+  service:
+    type: {{ default "ClusterIP" .Values.service.type }}
+    {{- include "rabbitmq.service-annot" . | indent 4 }} 
+  persistence:
+    storageClassName: {{ required "Storage Class name is needed" .Values.persistence.storageClass }}
+    storage: {{ default "5Gi" .Values.persistence.storage }}
+  {{- include "rabbitmq.affinity" . | indent 2 }}
+  terminationGracePeriodSeconds: {{ default "120" .Values.terminationGracePeriodSeconds }}
+  {{- include "rabbitmq.resources" . | indent 2 }}
+  {{- with .Values.rabbitmq }}
+  rabbitmq:
+  {{- if not (empty .additionalPlugins) }}
+    additionalPlugins:
+    {{- range .additionalPlugins }}
+    - {{ . }}
+    {{- end }}
+  {{- end }}
+  {{- if not (empty .additionalConfig) }}
+    additionalConfig: {{ toYaml .additionalConfig | indent 4}}
+  {{- end }}
+  {{- if not (empty .advancedConfig) }}
+    advancedConfig: {{ toYaml .advancedConfig | indent 4}}
+  {{- end }}
+    {{- if not (empty .envConfig) }}
+    envConfig: {{ toYaml .envConfig | indent 4}}
+    {{- end }}
+  {{ end }}
