@@ -1,0 +1,82 @@
+nameoverride: ""
+
+image: "rabbit"
+
+# imagePullSecrets:
+# - secret-1-name
+# - secret-2-name
+
+replicas: 3
+
+terminationGracePeriodSeconds: 120
+
+service:
+  type:
+  annotations:
+    # hello: world
+    # hello2: world
+
+persistence:
+  storageClass: standard
+  storage: 5Gi
+
+affinity:
+  enabled: false
+  podAntiAffinity: 
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - rabbitmq-cluster  ## Enter the nameoverride value if you have specified or leave it as it is
+        topologyKey: kubernetes.io/hostname
+  nodeAffinity: 
+    requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: ""
+            operator: In
+            values:
+            - ""
+  podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - rabbitmq-cluster  ## Enter the nameoverride value if you have specified or leave it as it is
+        topologyKey: kubernetes.io/hostname
+
+resources: 
+  # requests:
+  #   cpu: 100m
+  #   memory: 100Mi
+  # limits:
+  #   cpu: 200m
+  #   memory: 200Mi
+
+rabbitmq:
+  additionalPlugins:
+  - rabbitmq_federation
+  additionalConfig: |
+    disk_free_limit.absolute = 500MB
+    vm_memory_high_watermark.relative = 0.6
+  advancedConfig: ""
+  envConfig: ""
+
+## Different Service to expose the dashboard and broker endpoint
+differentService:
+  enabled: false
+  type: LoadBalancer
+  dashboard: true
+  broker: true
+
+## Ingress to expose dashboard
+ingress:
+  enabled: false
+  ingressClass: ""
+  hostname: ""
+  annotations:
+   # kubernetes.io/ingress.class: nginx

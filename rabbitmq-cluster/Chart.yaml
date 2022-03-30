@@ -1,0 +1,11 @@
+apiVersion: v2
+name: rabbitmq-cluster
+description: A Helm chart to deploy rabbitmq cluster on Kubernetes using RabbitMQ operator
+type: application
+version: 1.0.0
+appVersion: 1.12.0
+keywords:
+  - "rabbitmq-cluster"
+maintainers:
+  - email: dipayan.pramanik@knoldus.com
+    name: Dipayan Pramanik

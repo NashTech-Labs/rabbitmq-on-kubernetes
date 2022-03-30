@@ -1,0 +1,28 @@
+{{- with .Values.ingress }}
+{{- if and .enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ default $.Chart.Name $.Values.nameoverride }}-ingress
+  annotations:
+    app.kubernetes.io/name: {{ default $.Chart.Name $.Values.nameoverride }}
+    {{- if not (empty .annotations) }}
+    {{ toYaml .annotations }}
+    {{ end }}
+spec:
+  {{ if not (empty .ingressClass) -}}
+  ingressClassName: {{ .ingressClass }}
+  {{- end }}
+  rules:
+    - host: {{ required "Hostname is required" .hostname }}
+      http:
+        paths:
+          - backend:
+              service:
+                name: {{ default $.Chart.Name $.Values.nameoverride }}
+                port:
+                  number: 15672
+            path: /
+            pathType: ImplementationSpecific
+{{ end -}}
+{{ end -}}

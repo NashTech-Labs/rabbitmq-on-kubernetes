@@ -1,0 +1,27 @@
+{{- with .Values.differentService }}
+{{- if and .enabled (or .dashboard .broker ) }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ default $.Chart.Name $.Values.nameoverride }}-extra-service
+spec:
+  ports:
+  {{- if .broker }}
+  - appProtocol: amqp
+    name: amqp
+    port: 5672
+    protocol: TCP
+    targetPort: 5672
+{{- end }}
+{{- if .dashboard }}
+  - appProtocol: http
+    name: management
+    port: 15672
+    protocol: TCP
+    targetPort: 15672
+    {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ default $.Chart.Name $.Values.nameoverride }}
+  type: {{ .type }}
+{{ end -}}
+{{ end -}}
